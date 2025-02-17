@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Management</title>
+    <script>
+        let token = "";
+
+        async function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            const response = await fetch("/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username, password })
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                token = data.access_token;
+                document.getElementById("login-message").innerText = "Login Successful!";
+                loadEquipment();
+            } else {
+                document.getElementById("login-message").innerText = "Login Failed!";
+            }
+        }
+
+        async function loadEquipment() {
+            const response = await fetch("/equipment", {
+                headers: { "Authorization": "Bearer " + token }
+            });
+
+            const data = await response.json();
+            const list = document.getElementById("equipment-list");
+            list.innerHTML = "";
+
+            data.forEach(equip => {
+                list.innerHTML += `
+                    <li>${equip.name} - ${equip.status}
+                        ${equip.status === "Available" 
+                            ? `<button onclick="checkout(${equip.id})">Checkout</button>` 
+                            : `<button onclick="returnEquipment(${equip.id})">Return</button>`}
+                    </li>
+                `;
+            });
+        }
+
+        async function checkout(equipment_id) {
+            const response = await fetch("/checkout", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ equipment_id })
+            });
+
+            const data = await response.json();
+            alert(data.message);
+            loadEquipment();
+        }
+
+        async function returnEquipment(equipment_id) {
+            const response = await fetch("/return", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + token,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ equipment_id })
+            });
+
+            const data = await response.json();
+            alert(data.message);
+            loadEquipment();
+        }
+    </script>
+</head>
+<body>
+    <h1>Equipment Management System</h1>
+
+    <h2>Login</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+    <p id="login-message"></p>
+
+    <h2>Equipment List</h2>
+    <ul id="equipment-list"></ul>
+</body>
+</html>
