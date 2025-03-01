@@ -5,7 +5,7 @@ Clone the repository from:
 [GitHub Repository](https://github.com/cmessimer/SWEng2-CourseProject)
 
 ## Setup Virtual Environment
-1. Create the virtual environment (If already created, skip to activation step):
+Create the virtual environment (If already created, skip to activation step):
 `python -m venv venv`
 
 ### Activate the virtual environment
