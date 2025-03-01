@@ -57,7 +57,6 @@ Store the key (Windows):
      -H "Content-Type: application/json" \
      -d '{"equipment_id": 1}'
 `
-or
 
 `curl -X POST "http://127.0.0.1:5000/checkout" -H "Authorization: Bearer insertYourToken application/json" -d "{\"equipment_id\":1}" -v`
 
