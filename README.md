@@ -6,8 +6,7 @@ Clone the repository from:
 
 ## Setup Virtual Environment
 1. Create the virtual environment (If already created, skip to activation step):
-   ```sh
-   python -m venv venv
+`python -m venv venv`
 
 ### Activate the virtual environment
 Windows: 
@@ -18,29 +17,29 @@ macOS/Linux
 `source venv/bin/activate
 `
 
-### To exit the virtual environment
+To exit the virtual environment
 `deactivate
 `
 
 ## Package Management
-### Update the requirements.txt file if changes are made
+Update the requirements.txt file if changes are made
 `pip freeze > requirements.txt
 `
 
-### Install dependencies from requirements.txt
+Install dependencies from requirements.txt
 `pip install -r requirements.txt
 `
 
-### To exit the virtual environment
+To exit the virtual environment
 `deactivate
 `
 
 ## Generate a JWT Secret
-### Generate a secret key
+Generate a secret key
 `python -c "import secrets; print(secrets.token_hex(32))"
 `
 
-### Store the key (Windows):
+Store the key (Windows):
 `$env:JWT_SECRET="insertYourSecret"
 `
 
@@ -66,25 +65,25 @@ or
 `python app.py
 `
 
-### Initialize Flask-Migrate
+Initialize Flask-Migrate
 `python -m flask db init
 python -m flask db migrate -m "Initial migration"
 python -m flask db upgrade
 `
 
 ## Debugging Commands
-### Check if flask-migrate is installed (PowerShell)
+Check if flask-migrate is installed (PowerShell)
 `pip list | Select-String Flask-Migrate
 `
 
 ## Equipment Checkout
 Equipment checkout is handled via checkout_equipment.py. The script currently checks out equipment with ID: 1 (a laptop).
 
-### Ensure the Flask app is running or restart it
+Ensure the Flask app is running or restart it
 `python app.py
 `
 
-### Run the checkout script
+Run the checkout script
 `python checkout_equipment.py
 `
 
