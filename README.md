@@ -31,6 +31,7 @@ Install dependencies from requirements.txt:
 `
 
 To exit the virtual environment:
+Command:
 `deactivate
 `
 
@@ -44,10 +45,12 @@ Store the key (Windows):
 `
 
 ## Initialize Database
+Command:
 `python setup_db.py
 `
 
 ## Run Inventory Management
+Command: 
 `python inventory_management.py
 `
 
@@ -61,6 +64,7 @@ Store the key (Windows):
 `curl -X POST "http://127.0.0.1:5000/checkout" -H "Authorization: Bearer insertYourToken application/json" -d "{\"equipment_id\":1}" -v`
 
 ## Start the Flask App
+Command: 
 `python app.py
 `
 
