@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from models import db, User, Equipment, Checkout
-from datetime import datetime
+from datetime import datetime, timedelta
 import smtplib
 from email.mime.text import MIMEText
 from config import Config
@@ -10,17 +10,14 @@ from werkzeug.security import generate_password_hash, check_password_hash
 # Create Blueprint
 api_routes = Blueprint('api_routes', __name__)
 
-# User Registration Route (Optional, for testing)
+# User Registration Route
 @api_routes.route('/register', methods=['POST'])
 def register():
     data = request.json
-
     if User.query.filter_by(username=data['username']).first():
         return jsonify({'message': 'Username already exists'}), 400
 
-    # Ensure 'position' is provided, or set a default value
-    position = data.get("position", "Employee")  # Default to 'Employee' if not provided
-
+    position = data.get("position", "Employee")  # Default position
     hashed_password = generate_password_hash(data['password'])
     new_user = User(username=data['username'], password=hashed_password, position=position, role=data.get("role", "Employee"))
 
@@ -28,18 +25,26 @@ def register():
     db.session.commit()
     return jsonify({'message': 'User registered successfully'})
 
-# Login Route (Get JWT Token)
+# Login Route
 @api_routes.route('/login', methods=['POST'])
 def login():
     data = request.json
     user = User.query.filter_by(username=data['username']).first()
 
-    if user and check_password_hash(user.password, data['password']):  
-        access_token = create_access_token(identity=str(user.id))  # ✅ Convert ID to a string
+    if user:
+        print(f"Debug: Hashed Password from DB: {user.password}")  # Shows stored hash
+        print(f"Debug: Entered Password: {data['password']}")  # Shows entered password
+        if check_password_hash(user.password, data['password']):
+            print("Password verified!")  # Debugging line
+        else:
+            print("Password check failed!")  #  Debugging line
+
+    if user and check_password_hash(user.password, data['password']):  # Compare hashed password
+        access_token = create_access_token(identity={"id": user.id, "role": user.role})
         return jsonify(access_token=access_token)
 
+    print("Returning 401 Unauthorized")  # Debugging line
     return jsonify({'message': 'Invalid credentials'}), 401
-
 
 # List All Equipment
 @api_routes.route('/equipment', methods=['GET'])
@@ -52,7 +57,9 @@ def get_equipment():
 @api_routes.route('/checkout', methods=['POST'])
 @jwt_required()
 def checkout_equipment():
-    current_user_id = int(get_jwt_identity())  # ✅ Convert back to an integer
+    current_user = get_jwt_identity()  # Extract user dictionary
+    user_id = current_user["id"]
+    
     data = request.json
     equipment = Equipment.query.get(data['equipment_id'])
     
@@ -61,35 +68,42 @@ def checkout_equipment():
     if equipment.status != 'Available':
         return jsonify({'message': 'Equipment is not available'}), 400
 
-    new_checkout = Checkout(user_id=current_user_id, equipment_id=equipment.id)
+    new_checkout = Checkout(user_id=user_id, equipment_id=equipment.id, due_date=datetime.utcnow() + timedelta(days=7))
     equipment.status = 'Checked Out'
     
     db.session.add(new_checkout)
     db.session.commit()
     
-    return jsonify({'message': 'Equipment checked out successfully'})
+    return jsonify({'message': f'Equipment ID {equipment.id} checked out successfully'})
 
-# Return Equipment
+# Return Equipment (Check-in)
 @api_routes.route('/return', methods=['POST'])
 @jwt_required()
 def return_equipment():
-    current_user = get_jwt_identity()
-    data = request.json
-    checkout = Checkout.query.filter_by(equipment_id=data['equipment_id'], returned=False).first()
+    current_user = get_jwt_identity()  # Extract user dictionary
+    user_id = current_user["id"]
     
+    data = request.json
+    equipment_id = data.get("equipment_id")
+
+    # Find the active checkout entry for this equipment
+    checkout = Checkout.query.filter_by(equipment_id=equipment_id, returned=False).first()
+
     if not checkout:
-        return jsonify({'message': 'Invalid return request'}), 400
-    if checkout.user_id != current_user['id']:  # Prevents unauthorized returns
+        return jsonify({'message': 'Equipment was not checked out or is already returned'}), 400
+
+    if checkout.user_id != user_id:  # Check correct user
         return jsonify({'message': 'You can only return equipment you checked out'}), 403
 
+    # Mark as returned
     checkout.returned = True
-    equipment = Equipment.query.get(checkout.equipment_id)
-    equipment.status = 'Available'
+    equipment = Equipment.query.get(equipment_id)
+    equipment.status = "Available"
 
     db.session.commit()
-    return jsonify({'message': 'Equipment returned successfully'})
+    return jsonify({'message': f'Equipment ID {equipment_id} has been returned successfully'})
 
-# Email Notification Function (Fixed Line Break Issue)
+# Email Notification Function
 def send_email(to_email, subject, body):
     msg = MIMEText(body)
     msg['Subject'] = subject
