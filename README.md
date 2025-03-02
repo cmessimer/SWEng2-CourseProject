@@ -100,4 +100,9 @@ Based on the Flask-Migrate documentation, the following configuration was needed
 `
 
 ## Resources
-For more details, refer to the flask-migrate docs: https://flask-migrate.readthedocs.io/en/latest/
+For more details, refer to the following documents:
+- https://flask-migrate.readthedocs.io/en/latest/
+- https://docs.python.org/3/library/tkinter.html
+- https://flask.palletsprojects.com/en/stable/
+- https://flask-migrate.readthedocs.io/en/latest/
+- https://pub.dev/documentation/libsimple_flutter/latest/sqlite_web/SqliteImpl-class.html
