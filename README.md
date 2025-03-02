@@ -106,3 +106,4 @@ For more details, refer to the following documents:
 - https://flask.palletsprojects.com/en/stable/
 - https://flask-migrate.readthedocs.io/en/latest/
 - https://pub.dev/documentation/libsimple_flutter/latest/sqlite_web/SqliteImpl-class.html
+- https://www.sqlalchemy.org/
