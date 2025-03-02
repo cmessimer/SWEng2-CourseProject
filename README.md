@@ -1,5 +1,8 @@
 # CEIS 400 SWENG Equipment Checkout How-to Guide
 
+## Overview
+The Equipment Checkout System is a Flask-based web application that enables users to log in, check out equipment, return equipment, and prevent duplicate entries in the database. The system utilizes Flask, Flask-JWT-Extended for authentication, Flask-SQLAlchemy for database management, and Flask-Migrate for handling database migrations.
+
 ## Local Setup
 Clone the repository from:  
 [GitHub Repository](https://github.com/cmessimer/SWEng2-CourseProject)
